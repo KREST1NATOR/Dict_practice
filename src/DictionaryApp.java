@@ -1,6 +1,8 @@
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import java.io.IOException;
 
 // Интерфейс для работы со словарем
 interface Dictionary {
@@ -10,6 +12,7 @@ interface Dictionary {
     void removeEntry(String key);
     String searchEntry(String key);
     void displayEntriesPaginated(int page, int pageSize);
+    void printAsXml();
 }
 
 // Абстрактный класс для базового функционала
@@ -66,6 +69,17 @@ abstract class AbstractDictionary implements Dictionary {
         for (int i = start; i < end; i++) {
             Map.Entry<String, String> entry = entryList.get(i);
             System.out.println(entry.getKey() + " = " + entry.getValue());
+        }
+    }
+
+    @Override
+    public void printAsXml() {
+        try {
+            XmlMapper xmlMapper = new XmlMapper();
+            String xmlOutput = xmlMapper.writerWithDefaultPrettyPrinter().writeValueAsString(entries);
+            System.out.println(xmlOutput);
+        } catch (IOException e) {
+            System.out.println("Ошибка при выводе в XML: " + e.getMessage());
         }
     }
 }
@@ -169,7 +183,8 @@ public class DictionaryApp {
             System.out.println("5. Удалить запись");
             System.out.println("6. Найти запись");
             System.out.println("7. Выбрать словарь");
-            System.out.println("8. Выход");
+            System.out.println("8. Вывести словарь в XML формате");
+            System.out.println("9. Выход");
             System.out.print("Выберите нужный вариант: ");
 
             int choice = scanner.nextInt();
@@ -224,6 +239,10 @@ public class DictionaryApp {
                         System.out.println("Выбран " + dictChoice + " словарь.");
                     }
                     case 8 -> {
+                        System.out.println("Вывод словаря в формате XML:");
+                        selectedDictionary.printAsXml();
+                    }
+                    case 9 -> {
                         System.out.println("Выход из программы.");
                         return;
                     }
